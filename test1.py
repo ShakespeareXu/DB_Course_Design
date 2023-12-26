@@ -138,18 +138,76 @@ class AddUserWindow(UserDAO):
             "用户名": username,
             "密码": password
         }
-        self.insert_manager_users(user)
-        print("插入成功2")
+        # 根据当前用户类型调用不同的插入方法
+        if AccountWindow.current_user_type == 'manager':
+            self.insert_manager_users(user)
+        elif AccountWindow.current_user_type == 'converse':
+            self.insert_converse_users(user)
+        elif AccountWindow.current_user_type == 'monitor':
+            self.insert_monitor_users(user)
+        else:
+            QMessageBox.warning(self.window, "警告", "未知用户类型！")
+            return
         QMessageBox.information(self.window, "成功", "添加成功！")
+        self.window.close()
 
-class UpdateUserWindow():
+class UpdateUserWindow(UserDAO):
     def __init__(self):
+        super().__init__()
         self.window = QUiLoader().load("ui/UpdateUser.ui")
+        self.window.cancel_button.clicked.connect(self.exit_window)
+        self.window.enter_button.clicked.connect(self.update_user)
 
-class DeleteUserWindow():
+    def exit_window(self):
+        self.window.close()
+
+    def update_user(self):
+        username = self.window.username_ledit.text()
+        password = self.window.password_ledit.text()
+        user = {
+            "用户名": username,
+            "新密码": password
+        }
+        # 根据当前用户类型调用不同的插入方法
+        if AccountWindow.current_user_type == 'manager':
+            self.update_manager_users(user)
+        elif AccountWindow.current_user_type == 'converse':
+            self.update_converse_users(user)
+        elif AccountWindow.current_user_type == 'monitor':
+            self.update_monitor_users(user)
+        else:
+            QMessageBox.warning(self.window, "警告", "未知用户类型！")
+            return
+        QMessageBox.information(self.window, "成功", "更新成功！")
+        self.window.close()
+
+class DeleteUserWindow(UserDAO):
     def __init__(self):
+        super().__init__()
         self.window = QUiLoader().load("ui/DeleteUser.ui")
+        self.window.cancel_button.clicked.connect(self.exit_window)
+        self.window.enter_button.clicked.connect(self.delete_user)
 
+    def exit_window(self):
+        self.window.close()
+
+    def delete_user(self):
+        username = self.window.username_ledit.text()
+        user = {
+            "用户名": username
+        }
+        # 根据当前用户类型调用不同的插入方法
+        if AccountWindow.current_user_type == 'manager':
+            self.delete_manager_users(user)
+        elif AccountWindow.current_user_type == 'converse':
+            self.delete_converse_users(user)
+        elif AccountWindow.current_user_type == 'monitor':
+            self.delete_monitor_users(user)
+        else:
+            QMessageBox.warning(self.window, "警告", "未知用户类型！")
+            return
+        QMessageBox.information(self.window, "成功", "删除成功！")
+        self.window.close()
 
 class PlantInfoWindow():
     def __init__(self):
@@ -172,14 +230,14 @@ class AccountWindow(UserDAO):
         AccountWindow.add_user_window.window.show()
 
     def get_update_user_window(self):
-        if not AccountWindow.delete_user_window:
-            AccountWindow.delete_user_window = AddUserWindow()
-        AccountWindow.delete_user_window.window.show()
+        if not AccountWindow.update_user_window:
+            AccountWindow.update_user_window = UpdateUserWindow()
+        AccountWindow.update_user_window.window.show()
 
     def get_delete_user_window(self):
-        if not AccountWindow.add_user_window:
-            AccountWindow.add_user_window = AddUserWindow()
-        AccountWindow.add_user_window.window.show()
+        if not AccountWindow.delete_user_window:
+            AccountWindow.delete_user_window = DeleteUserWindow()
+        AccountWindow.delete_user_window.window.show()
 
     def setup_buttons(self):
         # 初始化时设置按钮为不可用
@@ -194,6 +252,7 @@ class AccountWindow(UserDAO):
         self.window.monitor_user_button.clicked.connect(self.setup_monitor_users_actions)
 
     def setup_manager_users_actions(self):
+        AccountWindow.current_user_type = 'manager'
         self.enable_action_buttons()
         self.window.add_button.clicked.connect(self.get_add_user_window)
         self.window.delete_button.clicked.connect(self.get_delete_user_window)
@@ -202,18 +261,20 @@ class AccountWindow(UserDAO):
         self.show_all_manager_users()
 
     def setup_converse_users_actions(self):
+        AccountWindow.current_user_type = 'converse'
         self.enable_action_buttons()
-        self.window.add_button.clicked.connect(self.insert_converse_users)
-        self.window.delete_button.clicked.connect(self.delete_converse_users)
-        self.window.update_button.clicked.connect(self.update_converse_users)
+        self.window.add_button.clicked.connect(self.get_add_user_window)
+        self.window.delete_button.clicked.connect(self.get_delete_user_window)
+        self.window.update_button.clicked.connect(self.get_update_user_window)
         self.window.refresh_button.clicked.connect(self.show_all_converse_users)
         self.show_all_converse_users()
 
     def setup_monitor_users_actions(self):
+        AccountWindow.current_user_type = 'monitor'
         self.enable_action_buttons()
-        self.window.add_button.clicked.connect(self.insert_monitor_users)
-        self.window.delete_button.clicked.connect(self.delete_monitor_users)
-        self.window.update_button.clicked.connect(self.update_monitor_users)
+        self.window.add_button.clicked.connect(self.get_add_user_window)
+        self.window.delete_button.clicked.connect(self.get_delete_user_window)
+        self.window.update_button.clicked.connect(self.get_update_user_window)
         self.window.refresh_button.clicked.connect(self.show_all_monitor_users)
         self.show_all_monitor_users()
 
@@ -288,8 +349,6 @@ class AccountWindow(UserDAO):
             self.window.user_password_show.setItem(row, 0, QTableWidgetItem(user['用户名']))
             self.window.user_password_show.setItem(row, 1, QTableWidgetItem(user['密码']))
 
-    
-
 class AdminitratorWindow():
     plant_info_window = None
     plant_classify_window = None
@@ -323,6 +382,7 @@ class LoginWindow(BaseDAO):
         # 封装文件对象
         self.window = QUiLoader().load("ui/Login.ui")
         self.window.login_button.clicked.connect(self.login)
+        self.window.exit_button.clicked.connect(lambda:self.window.close())
 
 
     def login(self):
