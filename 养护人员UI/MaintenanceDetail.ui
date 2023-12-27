@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>800</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>养护任务详细信息</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QHBoxLayout" name="horizontalLayout">
+    <item>
+     <widget class="QTableWidget" name="tableWidget">
+      <column>
+       <property name="text">
+        <string>植物编号</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>植物名称</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>任务编号</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>养护任务名称</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>任务描述</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>执行时间</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>执行地点</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>执行人员</string>
+       </property>
+      </column>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
